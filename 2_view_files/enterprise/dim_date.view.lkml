@@ -30,7 +30,7 @@ view: dim_date {
 
   dimension: date_key {
     primary_key: yes
-    type: date
+    type: date_raw
     label: "Date Key"
     group_label: "Keys & IDs"
     description: "Calendar date that uniquely identifies one row in enterprise.Dim_Date. This field is the primary key for this LookML view and is commonly used to join fact-table date columns to the date dimension."
