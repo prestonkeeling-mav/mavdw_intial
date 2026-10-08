@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/site.css" />
+  <title>LookML Explore Standards | BI Team Wiki</title>
+
+</head>
+<body class="theme-standards">
+  <div class="site-shell">
+    <header class="hero">
+
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="index.html" target="_blank" rel="noopener noreferrer"><span class=&quot;brand-mark&quot;></span><span>BI Team Wiki</span></a>
+      <div class="nav-links"><a href="index.html" target="_blank" rel="noopener noreferrer">Home</a><a href="customers.html" target="_blank" rel="noopener noreferrer">Customers</a><a href="projects.html" target="_blank" rel="noopener noreferrer">Projects</a><a href="tasks.html" target="_blank" rel="noopener noreferrer">Tasks</a><a href="meetings.html" target="_blank" rel="noopener noreferrer">Meetings</a><a class="active" href="standards.html" target="_blank" rel="noopener noreferrer">Internal Standards &amp; Processes</a><a href="systems.html" target="_blank" rel="noopener noreferrer">Systems</a></div>
+    </nav>
+      <div class="hero-inner">
+        <p class="eyebrow">Internal Standard &amp; Process</p>
+        <h1>LookML Explore Standards</h1>
+        <p class="summary">Standard for production-ready LookML Explores, covering approved group labels, descriptions, BI Manager approval, base grain, required reference views, joins, validation, performance, security, and pull request review.</p>
+      </div>
+    </header>
+    <main class="page">
+
+    <section class="section">
+      <h2>LookML Explore Standards</h2>
+      <p>Standard for production-ready LookML Explores, covering approved group labels, descriptions, BI Manager approval, base grain, required reference views, joins, validation, performance, security, and pull request review.</p>
+      <div class="badge-row"><span class="badge">active</span></div>
+    </section>
+    <section class="section">
+      <h2>Record Details</h2>
+      <div class="table-wrap"><table><tbody><tr><th>title</th><td>LookML Explore Standards</td></tr><tr><th>status</th><td>active</td></tr></tbody></table></div>
+    </section>
+
+    <section class="section">
+      <h2>Related Records</h2>
+      <p class="muted">No related records yet.</p>
+    </section>
+
+    <section class="section">
+      <h2>Standard Definition</h2>
+      <div class="standard-document"><h3>LookML Explore Standards</h3><h4>Purpose</h4><p>This standard defines how BI Team LookML Explores should be named, grouped, joined, validated, secured, reviewed, and approved before they are treated as production-ready.</p><h4>Naming</h4><ul><li>All LookML identifiers must use lowercase snake case.</li><li>This applies to view names, model names, Explore names, dimension names, measure names, join names, filter names, and parameter names.</li><li>Avoid abbreviations unless they are widely understood and consistently used by the business.</li><li>If an abbreviation is used in a user-facing label, the description must define the full meaning.</li></ul><h4>Explore Group Labels</h4><p>Every Explore must have a group label. The group label must use an approved value. New group labels require BI Manager approval.</p><p>Approved group labels:</p><ul><li>Frequently Used Explores</li><li>External Data From Business Partners</li><li>KPS - Information</li><li>Kum &amp; Go Legacy Databases</li><li>Landing Zone</li><li>Payment Partner Information</li><li>Paytronix Information</li><li>PDI Company - Combined</li><li>PDI Focal Point - Maverik</li><li>People Data</li><li>Reference Information</li><li>Schematics</li><li>Summary Information - Ridgeline</li><li>Summary Information - Database</li><li>Summary Information - Transactions</li><li>UKG Dimensions</li></ul><h4>Explore Descriptions</h4><ul><li>Every Explore must have a description.</li><li>At minimum, the description must explain what business questions the Explore is intended to answer.</li><li>Descriptions should be specific enough that a user can determine whether the Explore is appropriate before opening it.</li></ul><p>Example:</p><pre><code>explore: item_profitability {
+  description: &quot;Analyze item-level sales, cost, waste, and profitability by site and fiscal period.&quot;
+}</code></pre><h4>Explore Approval</h4><p>Require BI Team Member Approval:</p><ul><li>Non-security changes/additions to existing Explores</li></ul><p>Require BI Manager Approval:</p><ul><li>New Explores</li><li>Security Permission Changes</li><li>Many-to-many joins</li></ul><h4>Base View and Grain</h4><ul><li>The base table or base view of an Explore should be the most granular table used by the Explore.</li><li>Developers must document the base-view grain and understand how each join changes or preserves that grain.</li></ul><h4>Required Reference Views</h4><ul><li>Reference views needed for users to identify, filter, or group the base data should be included.</li><li>If base data contains important date fields, join the day-level and month-level calendar information views.</li><li>If the dataset contains Site ID or Organization Key, the organization view should normally be included.</li><li>If the dataset contains an identifier users need to understand, the associated reference view should normally be joined.</li><li>Reference views should provide human-readable descriptions and relevant hierarchy fields.</li></ul><h4>Join Standards</h4><ul><li>Every join must explicitly define its relationship.</li><li>Join fields should use persisted columns, compatible data types, the same business concept, and avoid unnecessary transformations.</li><li>Join conditions should not normally include casts, concatenation, date transformations, string manipulation, functions, formulas, or <code>OR</code> conditions.</li><li>If a formula or transformation is unavoidable, it must be documented and approved; the logic should preferably move upstream into the warehouse or governed transformation layer.</li><li>Join logic must not silently remove base-view records without clear documentation.</li><li>When the same view is joined multiple times, each join must have an appropriate user-facing view label that clearly explains the role the joined view serves in the Explore.</li></ul><p>Example:</p><pre><code>join: organization {
+  type: left_outer
+  relationship: many_to_one
+  sql_on: ${sales.organization_key} = ${organization.organization_key} ;;
+}</code></pre><h4>Explore Validation</h4><p>Validate on every change:</p><ul><li>For existing Explores, compare key measure totals with and without all joined views before and after the change.</li><li>Run a query from the base view with one representative column from each joined view. It should run in less than 10 seconds or no slower than before the change.</li></ul><p>Validate on new explores and major changes:</p><ul><li>Execute 100 representative query runs and confirm it runs in less than 10 seconds.</li><li>Validate that existing dashboards using this Explore still function as before. If multiple dashboards use the Explore, validate the top three by usage.</li></ul><ul><li>Performance exceptions require BI Manager approval and must be documented with the expected performance and business justification.</li></ul><h4>Security</h4><p>PII and security-permission handling are out of scope for this standard until a separate PII standard exists. Security permission changes require BI Manager approval.</p><h4>Review Checklist</h4><ul><li>[ ] Explore name uses lowercase snake case.</li><li>[ ] Explore group label uses an approved value.</li><li>[ ] Explore description explains the business questions it answers.</li><li>[ ] Non-security changes/additions to existing Explores have BI Team Member approval.</li><li>[ ] New Explores have BI Manager approval.</li><li>[ ] Security permission changes have BI Manager approval.</li><li>[ ] Many-to-many joins have BI Manager approval.</li><li>[ ] The base table is the most granular table in the Explore.</li><li>[ ] Required reference views are included.</li><li>[ ] Join relationships are explicitly defined.</li><li>[ ] Join cardinality has been validated.</li><li>[ ] Join fields use compatible data types.</li><li>[ ] Join conditions avoid formulas and transformations.</li><li>[ ] Multiple uses of the same view have clear view labels.</li><li>[ ] Existing Explores compare key measure totals with and without all joined views before and after the change.</li><li>[ ] A query from the base view with one representative column from each joined view runs in less than 10 seconds or no slower than before the change.</li><li>[ ] LookML Validator passes.</li><li>[ ] Content Validator passes.</li><li>[ ] SQL validation passes.</li><li>[ ] For new Explores and major changes, 100 representative query runs average less than 10 seconds.</li><li>[ ] For new Explores and major changes, existing dashboards using the Explore still function as before, including the top three by usage when multiple dashboards use the Explore.</li><li>[ ] User-facing field names match established business terminology.</li></ul></div>
+    </section>
+    <section class="section">
+      <h2>Sources</h2>
+      <ul><li><code>bi_wiki_site/data/standards/lookml_explore_standards.md</code></li><li><code>preston_raw/notes/Lookml VIEW STANDARDS.txt</code></li></ul>
+    </section>
+
+    <section class="section">
+      <h2>Notes</h2>
+      <div class="muted notes-body">Use this standard when creating, expanding, or reviewing LookML Explores. A production-ready Explore must have a clear business purpose, approved group label, appropriate base grain, validated joins, documented security handling, representative validation evidence, and performance testing appropriate for normal business use.</div>
+    </section>
+    </main>
+    <footer class="footer">
+      Generated from normalized JSON. Edit data files, then run <code>node bi_wiki_site/scripts/build.mjs</code>.
+    </footer>
+  </div>
+</body>
+</html>

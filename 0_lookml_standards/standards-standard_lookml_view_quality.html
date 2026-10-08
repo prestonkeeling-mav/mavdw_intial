@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/site.css" />
+  <title>LookML View Standards | BI Team Wiki</title>
+
+</head>
+<body class="theme-standards">
+  <div class="site-shell">
+    <header class="hero">
+
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="index.html" target="_blank" rel="noopener noreferrer"><span class=&quot;brand-mark&quot;></span><span>BI Team Wiki</span></a>
+      <div class="nav-links"><a href="index.html" target="_blank" rel="noopener noreferrer">Home</a><a href="customers.html" target="_blank" rel="noopener noreferrer">Customers</a><a href="projects.html" target="_blank" rel="noopener noreferrer">Projects</a><a href="tasks.html" target="_blank" rel="noopener noreferrer">Tasks</a><a href="meetings.html" target="_blank" rel="noopener noreferrer">Meetings</a><a class="active" href="standards.html" target="_blank" rel="noopener noreferrer">Internal Standards &amp; Processes</a><a href="systems.html" target="_blank" rel="noopener noreferrer">Systems</a></div>
+    </nav>
+      <div class="hero-inner">
+        <p class="eyebrow">Internal Standard &amp; Process</p>
+        <h1>LookML View Standards</h1>
+        <p class="summary">Standard for production-ready LookML views, covering naming, documentation, grain, primary keys, descriptions, drills, group labels, field visibility, dimension groups, measures, labels, canonical definitions, security, and approval.</p>
+      </div>
+    </header>
+    <main class="page">
+
+    <section class="section">
+      <h2>LookML View Standards</h2>
+      <p>Standard for production-ready LookML views, covering naming, documentation, grain, primary keys, descriptions, drills, group labels, field visibility, dimension groups, measures, labels, canonical definitions, security, and approval.</p>
+      <div class="badge-row"><span class="badge">active</span></div>
+    </section>
+    <section class="section">
+      <h2>Record Details</h2>
+      <div class="table-wrap"><table><tbody><tr><th>title</th><td>LookML View Standards</td></tr><tr><th>status</th><td>active</td></tr></tbody></table></div>
+    </section>
+
+    <section class="section">
+      <h2>Related Records</h2>
+      <p class="muted">No related records yet.</p>
+    </section>
+
+    <section class="section">
+      <h2>Standard Definition</h2>
+      <div class="standard-document"><h3>LookML View Standards</h3><h4>Purpose</h4><p>This standard defines how BI Team LookML views should be named, documented, modeled, reviewed, and approved before they are treated as production-ready.</p><h4>Naming</h4><ul><li>All LookML identifiers must use lowercase snake case.</li><li>This applies to view names, model names, Explore names, dimension names, measure names, join names, filter names, and parameter names.</li><li>Measure names should follow the pattern <code>aggregation_type_dimension_aggregated</code>.</li><li>Use <code>total_</code> instead of <code>sum_</code>.</li><li>Avoid abbreviations unless they are widely understood and consistently used by the business.</li><li>If an abbreviation is used in a user-facing label, the description must define the full meaning.</li></ul><p>Examples:</p><pre><code>measure: total_sales {
+  type: sum
+  sql: ${sales_amount} ;;
+}
+
+measure: count_distinct_customers {
+  type: count_distinct
+  sql: ${customer_id} ;;
+}</code></pre><h4>View Documentation and Grain</h4><ul><li>Every view must document its business purpose, physical source table or derived-table source, grain, primary key, known limitations, refresh expectations, data owner, and security classification where applicable.</li><li>Grain must clearly state what one row represents.</li><li>Known limitations should be explicit enough that reviewers and future developers understand where the view should not be used.</li></ul><p>Example:</p><pre><code># Purpose: Supports daily item-level sales and profitability reporting
+# Source: EDW.Maverik.COMBINED_ITEM_SALES_FACT
+# Grain: One row per calendar key, organization key, and product key
+# Primary Key: calendar_organization_product_key
+# Refresh: Daily
+# Data Owner: Business Intelligence
+# Security Classification: Internal, no direct PII</code></pre><h4>Primary Keys</h4><ul><li>Every view must have a valid primary key.</li><li>The primary key must be unique at the documented grain, non-null, marked with <code>primary_key: yes</code>.</li><li>Composite primary keys may be used when the source table does not contain a single primary-key column.</li><li>Composite keys should be created upstream in the data warehouse whenever practical.</li></ul><h4>Dimensions and Measures</h4><ul><li>Every dimension and measure must have a meaningful description.</li><li>Descriptions must explain the business meaning, source column or fields, calculation, valid grain, exclusions, limitations, and assumptions where relevant.</li><li>Descriptions should explain the field, not merely restate the field name.</li><li>Calculated fields must describe the calculation in business-readable language.</li><li>All dimensions and measures should be mutually exclusive. No two dimensions should yield the same result, and no two measures should yield the same result.</li></ul><h4>Drill Fields</h4><ul><li>Default drill fields must be defined.</li><li>Drill fields should use the most granular human-readable information available for the underlying data.</li><li>Drills should include key identifying dimensions and the most important measures from the view.</li></ul><h4>Group Labels and Visibility</h4><ul><li>Any view with more than four dimensions or measures should use group labels.</li><li>Yes/no dimensions and one/zero flag fields should be placed in <code>Flags &amp; Filters</code>, or a clearly modified version such as <code>Transaction Flags &amp; Filters</code>.</li><li>Primary keys, foreign keys, and related identifiers should be placed in <code>Keys &amp; IDs</code>.</li><li>Fields should be hidden only for a documented reason, such as technical join keys, deprecated fields, restricted fields, or fields that could cause misinterpretation.</li><li>Fields must not be hidden merely to make an Explore look cleaner.</li></ul><h4>Dimension Groups</h4><ul><li>Date and timestamp fields should generally be modeled as dimension groups.</li><li>Every dimension group must explicitly define its available timeframes.</li><li>Choose timeframes intentionally for the expected business use.</li><li>Avoid ambiguous names such as <code>date</code>, <code>month</code>, and <code>year</code>; prefer event-specific names such as <code>transaction_date</code>, <code>invoice_date</code>, <code>posted_date</code>, or <code>delivery_date</code>.</li></ul><h4>Measure Logic</h4><ul><li>Measures should use native Looker measure types whenever practical.</li><li>Measures should reference existing LookML dimensions rather than repeating source SQL.</li><li>Measure names and descriptions must make clear whether the measure is a row count, distinct business-entity count, total, ratio, weighted value, period-ending balance, or snapshot value.</li><li>Measures that use division must use <code>NULLIF</code> to protect against divide-by-zero errors.</li><li>Ratios should generally be calculated from aggregated numerators and denominators.</li><li>Do not average row-level percentages unless there is a documented business reason.</li><li>Distinct measures must document why distinctness is required, what entity is counted, which field defines distinctness, and whether the result changes at different grains.</li><li>Do not use Looker&#39;s <code>average</code> measure type. Averages must be defined as an aggregate divided by the count of a specific business unit.</li><li>Measure names must identify what is being averaged, such as <code>average_daily_sales</code>, <code>average_units_per_transaction</code>, or <code>average_labor_hours_per_week</code>.</li><li>Every measure must use an appropriate format for dollars, precision-sensitive amounts, ratios, counts, gallons, units, hours, or other business units.</li></ul><h4>Labels and Canonical Definitions</h4><ul><li>User-facing labels must be written for business users.</li><li>Labels should use Title Case, avoid technical database terminology, avoid unnecessary table or source-system names, include units when needed, differentiate similar fields, and match established business terminology.</li><li>Similar concepts must either be consolidated or clearly differentiated by source, grain, timing, scope, calculation, or included activity.</li><li>Business attributes should be defined once in their canonical reference view.</li><li>Fact views may define foreign keys, transaction-specific attributes, and fields genuinely part of the fact-table grain.</li><li>Fact views should not duplicate descriptive attributes owned by reference views.</li><li>Fields that require other fields for links or display behavior must document that requirement and use <code>group_item_label</code> where appropriate.</li></ul><h4>Security</h4><ul><li>If a view or field contains PII or restricted data, access must be restricted with proper Looker security controls.</li><li>Hiding a field is not an acceptable security control by itself.</li><li>Escalate PII or restricted-data handling to the BI Manager until a separate PII standard exists.</li></ul><h4>Approval</h4><ul><li>A developer may not approve their own pull request.</li></ul><p>Any BI Team Member may review the following:</p><ul><li>Changes to existing measures</li><li>Changes to dimensions that are not used in joins</li></ul><p>Changes Requiring BI Manager Approval:</p><ul><li>New Views</li><li>Changes to dimensions used in joins</li><li>Changes to views containing PII</li><li>Where a view explicitly requires BI Manager Approval.</li></ul><h4>Review Checklist</h4><ul><li>[ ] View name uses lowercase snake case.</li><li>[ ] View purpose is documented.</li><li>[ ] Source table or derived source is documented.</li><li>[ ] Grain is documented.</li><li>[ ] A valid primary key is defined.</li><li>[ ] Primary key is expected to be unique at the documented grain.</li><li>[ ] Every dimension has a meaningful description.</li><li>[ ] Every measure has a meaningful description.</li><li>[ ] Dimensions and measures are mutually exclusive.</li><li>[ ] Group labels are used where appropriate.</li><li>[ ] Hidden fields have a documented reason.</li><li>[ ] User-facing labels use business terminology.</li><li>[ ] Similar fields are clearly differentiated.</li><li>[ ] Canonical reference attributes are not duplicated.</li><li>[ ] Measures use appropriate formats.</li><li>[ ] Division uses <code>NULLIF</code>.</li><li>[ ] Ratios use aggregated numerators and denominators.</li><li>[ ] No Looker <code>average</code> measures are used.</li><li>[ ] Average calculations identify the specific denominator.</li><li>[ ] Drill fields identify the underlying row or business event at the lowest useful grain.</li><li>[ ] PII is identified and restricted.</li><li>[ ] Reviewer approval level matches the change type.</li><li>[ ] BI Manager approval is present when required.</li></ul></div>
+    </section>
+    <section class="section">
+      <h2>Sources</h2>
+      <ul><li><code>bi_wiki_site/data/standards/lookml_view_standards.md</code></li><li><code>preston_raw/notes/Lookml VIEW STANDARDS.txt</code></li></ul>
+    </section>
+
+    <section class="section">
+      <h2>Notes</h2>
+      <div class="muted notes-body">Use this standard when creating, changing, or reviewing LookML views. A view should not be considered production-ready until its grain, primary key, field descriptions, measure behavior, labels, drill behavior, security handling, and validation evidence are clear enough for another BI Team member to review without undocumented context.</div>
+    </section>
+    </main>
+    <footer class="footer">
+      Generated from normalized JSON. Edit data files, then run <code>node bi_wiki_site/scripts/build.mjs</code>.
+    </footer>
+  </div>
+</body>
+</html>
