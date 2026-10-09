@@ -8,7 +8,7 @@
 # Known Limitations: The source metadata does not provide a single physical primary key. This view defines a composite LookML primary key from Transaction_Number and Site_Id; validate uniqueness before production release.
 
 view: fact_lz_transaction_header {
-  sql_table_name: enterprise.Fact_LZ_Transaction_Header ;;
+  sql_table_name: MAVDW.enterprise.Fact_LZ_Transaction_Header ;;
   view_label: "LZ Transaction Header"
 
   set: transaction_header_detail {

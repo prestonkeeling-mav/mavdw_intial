@@ -8,7 +8,7 @@
 # Known Limitations: Fiscal calendar definitions, relative-period offsets, and business-day flags should be validated with the data owner before production release.
 
 view: dim_date {
-  sql_table_name: enterprise.Dim_Date ;;
+  sql_table_name: MAVDW.enterprise.Dim_Date ;;
   view_label: "Date"
 
   set: date_detail {
