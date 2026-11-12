@@ -1,4 +1,5 @@
-connection: "mavdw"
+#connection: "mavdw"
+connection: "tst-mavdw"
 
 
 include: "/2_view_files/**/*.view.lkml"
